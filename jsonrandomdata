@@ -1,0 +1,58 @@
+import json
+import random
+from datetime import datetime, timedelta
+from azure.storage.queue import QueueClient
+
+# Azure Storage Queue anslutningssträng och kö namn
+AZURE_QUEUE_CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=de23;AccountKey=9AsCmJbNRqlbazMWI/8ilZLCsxVkvsoSP2b7sDKS74k75Ry6YlLbwEhDcMw9j4gdHo9spGW1uFEZ+AStBCYICQ==;EndpointSuffix=core.windows.net"  # Ersätt med din anslutningssträng
+QUEUE_NAME = "mehdi-queue"  # Ersätt med namnet på din kö
+
+# Funktion för att generera random sample data
+def generate_sample_data(num_records=10):
+    sample_data = []
+
+    # Sample attribut för den genererade datan
+    names = ["Alicia", "Andreas", "Robert", "Lars", "Emelie", "Malin", "Saga", "Anders", "Andreas", "Marcus"]
+    departments = ["Sales", "Marketing", "Development", "HR", "Finance"]
+    cities = ["Stockholm", "Gävle", "Göteborg", "Lund", "Sundsvall", "Hudiksvall", "Nyköping", "Nörköping"]
+    job_titles = ["Manager", "Analyst", "Developer", "Designer", "Consultant"]
+    statuses = ["Active", "Inactive", "On Leave"]
+
+    # Generera random records
+    for _ in range(num_records):
+        record = {
+            "employee_id": random.randint(1000, 99999999),
+            "name": random.choice(names),
+            "age": random.randint(22, 60),
+            "department": random.choice(departments),
+            "job_title": random.choice(job_titles),
+            "city": random.choice(cities),
+            "status": random.choice(statuses),
+            "hire_date": (datetime.now() - timedelta(days=random.randint(1, 3000))).strftime('%Y-%m-%d')
+        }
+        sample_data.append(record)
+
+    return sample_data
+
+# Funktion för att skicka data till Azure Queue
+def send_to_queue(data):
+    # Skapa en QueueClient för att ansluta till Azure Queue
+    queue_client = QueueClient.from_connection_string(AZURE_QUEUE_CONNECTION_STRING, QUEUE_NAME)
+
+    # Skicka varje record till Azure Queue
+    for record in data:
+        message = json.dumps(record)  # Konvertera record till JSON-format
+        queue_client.send_message(message)  # Skicka meddelandet till kön
+        print(f"Sent message: {message}")
+
+# Huvudfunktion för att generera data och skicka den till kön
+def main():
+    # Generera sample data
+    data = generate_sample_data(10)
+
+    # Skicka data till Azure Queue
+    send_to_queue(data)
+
+# Kör huvudfunktionen
+if __name__ == "__main__":
+    main()
