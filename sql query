@@ -1,0 +1,10 @@
+CREATE TABLE Employees (
+    employee_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    age INT,
+    department VARCHAR(50),
+    job_title VARCHAR(50),
+    city VARCHAR(50),
+    status VARCHAR(20),
+    hire_date DATE
+);
